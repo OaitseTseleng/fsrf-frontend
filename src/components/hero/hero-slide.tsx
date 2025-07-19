@@ -15,15 +15,15 @@ export default function HeroSlide({ image, title, description, isActive }: HeroS
       <Image src={image} alt={title} fill className="object-cover" />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/30 z-10" />
+      <div className="absolute inset-0 bg-black/50 z-10" />
 
-      {/* Text Box with translucent background */}
+      {/* Text Box with navy background */}
       <div className="absolute inset-0 z-20 flex items-center justify-center px-4">
-        <div className="bg-black/40 backdrop-blur-md p-6 rounded-xl max-w-3xl text-center">
-          <h2 className="text-5xl font-extrabold mb-4 drop-shadow-lg" style={{ color: 'rgb(198, 156, 59)' }}>
+        <div className="bg-[#0a1a2f]/80 backdrop-blur-md p-6 rounded-xl max-w-3xl text-center border border-white/10">
+          <h2 className="text-5xl font-extrabold mb-4 drop-shadow-lg text-white">
             {title}
           </h2>
-          <p className="text-xl drop-shadow-md" style={{ color: 'rgb(192, 161, 89)' }}>
+          <p className="text-xl drop-shadow text-[#d0d0d0]">
             {description}
           </p>
         </div>

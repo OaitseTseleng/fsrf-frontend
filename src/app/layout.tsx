@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Bungee, Inter } from 'next/font/google'
 import "@/css/globals.css";
-import Navbar from '@/components/navbar';
-import Footer from '@/components/footer';
+import Navbar from '@/components/common/navbar';
+import Footer from '@/components/common/footer';
+import Providers  from './providers';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${bungee.variable} antialiased`}>
         <Navbar />
-        <main className="flex-grow">{children}</main>
+          <Providers>{children}</Providers>
         <Footer />
       </body>
     </html>
