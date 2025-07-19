@@ -1,0 +1,63 @@
+/* custom.css */
+@layer base {
+    body {
+      background-color: rgb(var(--background));
+      color: rgb(var(--foreground));
+    }
+  }  
+  
+  :root {
+    --background: 243, 233, 210;
+    --foreground: 26, 18, 11;
+  }
+  
+  @theme inline {
+    --font-sans: var(--font-inter);
+    --font-bungee: var(--font-bungee);
+  }
+  
+  
+  /* @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 26, 18, 11; 
+      --foreground: 243, 233, 210; 
+    }
+  } */
+  
+  /* Smooth scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px; /* Height of your navbar */
+  }
+
+  /* Fallback for older browsers */
+  [id] {
+    scroll-margin-top: var(--navbar-height);
+  }
+  
+  /* Animation for mobile menu */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .md\:hidden {
+    animation: fadeInDown 0.3s ease-out;
+  }
+  
+  /* Animation for cookie bounce */
+  @keyframes cookieBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  .hover\:cookie-bounce:hover {
+    animation: cookieBounce 0.8s ease infinite;
+  }
+  
