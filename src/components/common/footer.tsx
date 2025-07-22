@@ -35,6 +35,8 @@ export default function Footer() {
   const [anonymous, setAnonymous] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [whistleError, setWhistleError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "";
   const NAVY = "#001f3f";
@@ -68,32 +70,42 @@ export default function Footer() {
   function closeModals() { setShowPrivacyModal(false); setShowWhistleModal(false); }
 
   async function sendWhistle() {
-    const formData = new FormData();
-    formData.append(
-      'data',
-      JSON.stringify({
-        name: anonymous ? null : whistleName,
-        email: anonymous ? null : whistleEmail,
-        message: whistleMessage,
-      })
-    );
-    attachments.forEach(file => formData.append('files.attachment', file));
+    setIsSubmitting(true);
+    setWhistleError('');
 
     try {
-      await fetch(`${STRAPI_URL}/api/whistleblowing-reports`, {
+      const formData = new FormData();
+      formData.append('name', anonymous ? '' : whistleName);
+      formData.append('email', anonymous ? '' : whistleEmail);
+      formData.append('message', whistleMessage);
+
+      attachments.forEach(file => {
+        formData.append('attachments', file);
+      });
+
+      const res = await fetch('/api/whistleblower', {
         method: 'POST',
         body: formData,
       });
-      alert('Report submitted successfully');
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to submit');
+
+      // Reset form
       setWhistleName('');
       setWhistleEmail('');
       setWhistleMessage('');
       setAttachments([]);
       closeModals();
-    } catch {
-      alert('Submission failed');
+    } catch (err: any) {
+      setWhistleError(err.message || 'An unknown error occurred.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
+
+
 
   const renderPolicy = () =>
     policyBlocks.map((block, idx) => {
@@ -224,7 +236,7 @@ export default function Footer() {
       {/* Whistleblowing Modal */}
       {showWhistleModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white max-w-md w-full p-6 rounded-lg relative">
+          <div className="bg-white max-w-md w-full p-6 rounded-lg relative max-h-[80vh] overflow-y-auto">
             <button
               onClick={closeModals}
               style={{ color: NAVY }}
@@ -253,7 +265,7 @@ export default function Footer() {
                   value={whistleName}
                   onChange={e => setWhistleName(e.target.value)}
                   className="w-full border rounded p-2"
-                  style={{ borderColor: NAVY }}
+                  style={{ borderColor: NAVY, color: 'black' }}
                 />
               </label>
               <label className="block">
@@ -264,7 +276,7 @@ export default function Footer() {
                   value={whistleEmail}
                   onChange={e => setWhistleEmail(e.target.value)}
                   className="w-full border rounded p-2"
-                  style={{ borderColor: NAVY }}
+                  style={{ borderColor: NAVY, color: 'black' }}
                 />
               </label>
               <label className="block">
@@ -273,7 +285,7 @@ export default function Footer() {
                   value={whistleMessage}
                   onChange={e => setWhistleMessage(e.target.value)}
                   className="w-full border rounded p-2 h-32"
-                  style={{ borderColor: NAVY }}
+                  style={{ borderColor: NAVY, color: 'black' }}
                 />
               </label>
               <div>
@@ -305,12 +317,38 @@ export default function Footer() {
                 />
                 <span style={{ color: NAVY }}>Send anonymously</span>
               </label>
+              {whistleError && (
+                <div className="text-red-600 text-sm text-center">{whistleError}</div>
+              )}
               <button
                 type="submit"
-                className="w-full text-center px-4 py-2 rounded"
+                className="w-full text-center px-4 py-2 rounded flex items-center justify-center"
                 style={{ backgroundColor: NAVY, color: '#fff' }}
+                disabled={isSubmitting}
               >
-                Submit Report
+                {isSubmitting ? (
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                ) : null}
+                {isSubmitting ? 'Submitting...' : 'Submit Report'}
               </button>
             </form>
           </div>

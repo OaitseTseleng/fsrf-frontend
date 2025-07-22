@@ -88,13 +88,13 @@ export default function ResourcesPage() {
       {loading ? (
         <Loader />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
           {resources.map(resource => {
             const isExpanded = expandedId === resource.id;
             return (
               <div
                 key={resource.id}
-                className="bg-[#001f3f] text-white p-6 rounded-xl shadow cursor-pointer"
+                className="bg-[#001f3f] text-white p-6 rounded-xl shadow cursor-pointer h-auto"
                 onClick={() => toggleExpand(resource.id)}
               >
                 <h2 className="text-xl font-semibold mb-2">{resource.title}</h2>
@@ -104,12 +104,8 @@ export default function ResourcesPage() {
                   <>
                     {resource.steps?.map((step, i) => (
                       <div key={i} className="border-t border-white py-2">
-                        <p className="font-medium">
-                          Step {i + 1}: {step.title}
-                        </p>
-                        {step.description && (
-                          <p className="text-sm italic mb-1">{step.description}</p>
-                        )}
+                        <p className="font-medium">Step {i + 1}: {step.title}</p>
+                        {step.description && <p className="text-sm italic mb-1">{step.description}</p>}
                         {step.file?.url && (
                           <button
                             onClick={e => { e.stopPropagation(); downloadFile(step.file.url); }}

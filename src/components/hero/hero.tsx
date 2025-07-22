@@ -107,6 +107,19 @@ export default function Hero() {
     setClickedDate(date);
   };
 
+  // Handle previous and next buttons for web
+  const handlePrevSlide = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -sliderRef.current.offsetWidth, behavior: 'smooth' });
+    }
+  };
+
+  const handleNextSlide = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: sliderRef.current.offsetWidth, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       {/* HERO SECTION */}
@@ -152,10 +165,19 @@ export default function Hero() {
               ))}
             </div>
           </div>
+          {/* Web: Add Prev and Next buttons for the event slider */}
+          <div className="hidden md:flex justify-between pt-5">
+            <button onClick={handlePrevSlide} className="bg-[#003366] text-white px-4 py-2 rounded-md">
+              Prev
+            </button>
+            <button onClick={handleNextSlide} className="bg-[#003366] text-white px-4 py-2 rounded-md">
+              Next
+            </button>
+          </div>
         </div>
 
         {/* Right: Calendar */}
-        <div className="md:w-[30%] w-full bg-white text-[#001f3f] p-4 flex flex-col justify-center">
+        <div className="md:w-[30%] w-full bg-white text-[#001f3f] p-4 flex flex-col justify-center items-center md:items-start">
           <h2 className="text-lg font-bold mb-2">Event Calendar</h2>
           <Calendar
             onChange={setSelectedDate}
@@ -169,6 +191,7 @@ export default function Hero() {
               return '';
             }}
             onClickDay={handleDateClick}
+            className="w-full md:w-auto" // Full width on mobile and auto on desktop
           />
 
           {clickedDate && (
