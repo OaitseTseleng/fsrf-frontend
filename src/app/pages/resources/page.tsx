@@ -41,6 +41,14 @@ export default function ResourcesPage() {
   const [total, setTotal] = useState(0);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
+  // Email modal states
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+  const [emailList, setEmailList] = useState<string[]>([]);
+  const [currentResource, setCurrentResource] = useState<any>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [emailError, setEmailError] = useState('');
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -49,7 +57,7 @@ export default function ResourcesPage() {
         'pagination[limit]': String(ITEMS_PER_PAGE),
         sort: 'createdAt:desc',
         'filters[title][$containsi]': search,
-        populate: 'steps.file',
+        populate: '*',
       });
 
       setResources(res.data || []);
@@ -60,16 +68,57 @@ export default function ResourcesPage() {
     fetchData();
   }, [page, search]);
 
-  const handleDownloadAll = (steps: any[]) => {
-    steps.forEach((step) => {
-      if (step.file?.url) {
-        downloadFile(step.file.url);
-      }
-    });
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const toggleExpand = (id: number) => setExpandedId(prev => (prev === id ? null : id));
+
+  const openEmailModal = (resource: any) => {
+    setCurrentResource(resource);
+    setEmailList([]);
+    setEmailInput('');
+    setEmailError('');
+    setShowEmailModal(true);
   };
 
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-  const toggleExpand = (id: number) => setExpandedId(prev => prev === id ? null : id);
+  const addEmail = () => {
+    const email = emailInput.trim();
+    if (email && !emailList.includes(email)) {
+      setEmailList(prev => [...prev, email]);
+    }
+    setEmailInput('');
+  };
+
+  const handleEmailSubmit = async () => {
+    if (!emailList.length || !currentResource) return;
+    setIsSending(true);
+    setEmailError('');
+
+    try {
+      const res = await fetch('/api/send-resource', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emails: emailList,
+          resource: {
+            title: currentResource.title,
+            description: currentResource.description,
+            downloadAllFile: currentResource.downloadAllFile?.url || null,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setShowEmailModal(false);
+      } else {
+        setEmailError(data.error || 'Failed to send email.');
+      }
+    } catch (error: any) {
+      console.error('Email send error:', error);
+      setEmailError(error.message || 'Failed to send email.');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white px-6 py-12 text-black">
@@ -119,13 +168,15 @@ export default function ResourcesPage() {
 
                     <div className="mt-4 flex flex-wrap gap-4">
                       <button
-                        onClick={e => { e.stopPropagation(); handleDownloadAll(resource.steps || []); }}
+                        onClick={e => { e.stopPropagation();
+                          if (resource.downloadAllFile?.url) downloadFile(resource.downloadAllFile.url);
+                        }}
                         className="cursor-pointer bg-black text-white px-4 py-2 rounded hover:bg-opacity-80"
                       >
                         Download All
                       </button>
                       <button
-                        onClick={e => { e.stopPropagation(); alert('Emailing feature coming soon'); }}
+                        onClick={e => { e.stopPropagation(); openEmailModal(resource); }}
                         className="cursor-pointer border border-white px-4 py-2 rounded text-white hover:bg-white hover:text-[#001f3f]"
                       >
                         Email Resource
@@ -151,6 +202,68 @@ export default function ResourcesPage() {
               {i + 1}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-md p-6 rounded-lg relative">
+            <button
+              onClick={() => setShowEmailModal(false)}
+              className="absolute top-2 right-2 text-xl"
+              style={{ color: '#001f3f' }}
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: '#001f3f' }}>
+              Email "{currentResource?.title}"
+            </h2>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {emailList.map((email, idx) => (
+                  <span key={idx} className="bg-gray-200 text-black px-2 py-1 rounded">
+                    {email}
+                  </span>
+                ))}
+              </div>
+              <input
+                type="email"
+                placeholder="Enter email and press Enter"
+                value={emailInput}
+                onChange={e => setEmailInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addEmail();
+                  }
+                }}
+                className="w-full border border-gray-300 px-4 py-2 rounded"
+              />
+              {emailError && <p className="text-red-600 text-sm">{emailError}</p>}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="px-4 py-2 rounded border"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEmailSubmit}
+                disabled={!emailList.length || isSending}
+                className="px-4 py-2 rounded bg-[#001f3f] text-white disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSending && (
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                )}
+                Send
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
