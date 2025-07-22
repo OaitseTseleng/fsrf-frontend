@@ -1,0 +1,18 @@
+.event-day-red {
+  background-color: #ffdddd !important;
+  border-radius: 50%;
+}
+
+.event-day-green {
+  background-color: #ddffdd !important;
+  border-radius: 50%;
+}
+
+.tooltip {
+  z-index: 10;
+  position: absolute;
+  pointer-events: none;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+}
