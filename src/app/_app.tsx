@@ -6,8 +6,7 @@ import { ApolloProvider } from '@apollo/client';
 import client from '@/lib/apollo-client';
 
 import Loader from '@/components/common/loader';
-import Navbar from '@/components/common/navbar';
-import Footer from '@/components/common/footer';
+
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -31,11 +30,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
       {loading && <Loader />}
-      <Navbar />
       <main className="min-h-screen bg-white text-black">
         <Component {...pageProps} />
       </main>
-      <Footer />
     </ApolloProvider>
   );
 }

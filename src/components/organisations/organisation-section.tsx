@@ -8,21 +8,12 @@ import Image from 'next/image';
 
 const ORGS_QUERY = gql`
   query {
-    organizations {
-      data {
-        id
-        attributes {
-          name
-          slug
-          shortDescription
-          logo {
-            data {
-              attributes {
-                url
-              }
-            }
-          }
-        }
+    organisations {
+      name
+      slug
+      shortDescription
+      logo {
+        url
       }
     }
   }
@@ -31,50 +22,67 @@ const ORGS_QUERY = gql`
 const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
 interface Organization {
-  id: string;
   name: string;
   slug: string;
   shortDescription: string;
   logo?: string;
 }
 
-export default function OrganizationsSection() {
+export default function OrganisationsSection() {
   const { data, loading, error } = fetch(ORGS_QUERY);
 
-  const organizations: Organization[] = data?.organizations?.data.map((org: any) => ({
-    id: org.id,
-    name: org.attributes.name,
-    slug: org.attributes.slug,
-    shortDescription: org.attributes.shortDescription,
-    logo: org.attributes.logo?.data?.attributes?.url
-      ? baseUrl + org.attributes.logo.data.attributes.url
-      : undefined,
+  const organizations: Organization[] = data?.organisations?.map((org: any) => ({
+    name: org.name,
+    slug: org.slug,
+    shortDescription: org.shortDescription,
+    logo: org.logo?.url ? baseUrl + org.logo.url : undefined,
   })) || [];
 
   if (loading) return <div className="p-6"><Loader /></div>;
-  if (error) return <div className="text-red-500 p-6">Error loading organizations.</div>;
+  if (error) return (
+    <div className="text-red-500 bg-red-100 border border-red-400 p-4 rounded-md m-4">
+      <h2 className="font-bold">Something went wrong</h2>
+      <p>{error.message || 'Unable to load data. Please try again later.'}</p>
+    </div>
+  );
 
   return (
-    <section className="py-16 px-4 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8 text-center">Participating Organizations</h2>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <section className="bg-white py-20 px-6 mx-auto">
+      {/* Intro Section */}
+      <div className="text-center mb-16 max-w-3xl mx-auto">
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          Understanding Financial Regulation in Botswana
+        </h2>
+        <p className="text-gray-700 text-lg leading-relaxed">
+          This site aims to make it easier for individuals and businesses to navigate the frameworks and regulations related to financial services in Botswana. Whether you're starting a bank, a non-bank financial institution, or simply need clarity on compliance, licenses, or policy, we’ve curated a list of key regulatory bodies to help guide your journey.
+        </p>
+      </div>
+
+      {/* Organizations Display */}
+      <div className="space-y-10">
         {organizations.map((org) => (
-          <div key={org.id} className="bg-white shadow-md p-6 rounded-xl border border-black/10">
-            {org.logo && (
-              <div className="h-16 w-16 relative mb-4">
-                <Image
-                  src={org.logo}
-                  alt={org.name}
-                  fill
-                  className="object-contain"
-                />
+          <Link key={org.slug} href={`/pages/organisations/${org.slug}`}>
+            <div className="border-t border-gray-200 pt-10 pb-10 hover:bg-gray-50 transition rounded-lg cursor-pointer">
+              <div className="flex flex-col items-center text-center gap-4 max-w-3xl mx-auto">
+                {org.logo && (
+                  <div className="h-16 w-16 relative bg-gray-100 rounded-md border border-gray-300 overflow-hidden">
+                    <Image
+                      src={org.logo}
+                      alt={org.name}
+                      fill
+                      className="object-contain p-1"
+                    />
+                  </div>
+                )}
+                <div className="text-2xl font-semibold text-blue-700">
+                  {org.name}
+                </div>
+                <p className="text-gray-800 text-sm leading-relaxed">
+                  {org.shortDescription}
+                </p>
               </div>
-            )}
-            <h3 className="text-xl font-semibold text-blue-800 mb-2 hover:underline">
-              <Link href={`/organizations/${org.slug}`}>{org.name}</Link>
-            </h3>
-            <p className="text-gray-700 text-sm">{org.shortDescription}</p>
-          </div>
+            </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -10,6 +10,7 @@ interface SlideModalProps {
     date: string;
     image: string;
     body: string;
+    gallery?: string[]; // Optional gallery of images
   };
 }
 
@@ -21,7 +22,7 @@ export default function SlideModal({ isOpen, onClose, content }: SlideModalProps
       <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-white rounded-lg overflow-hidden max-w-2xl w-full shadow-xl">
+        <Dialog.Panel className="bg-white rounded-lg overflow-hidden max-w-4xl w-full shadow-xl">
           <div className="relative">
             {content.image && (
               <img src={content.image} alt={content.title} className="w-full h-64 object-cover" />
@@ -37,6 +38,13 @@ export default function SlideModal({ isOpen, onClose, content }: SlideModalProps
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-2">{content.title}</h2>
             <p className="text-sm text-gray-500 mb-4">{content.date}</p>
+
+            <div
+              className="prose prose-lg text-gray-800 mb-4"
+              dangerouslySetInnerHTML={{ __html: content.body }}
+            />
+
+            
           </div>
         </Dialog.Panel>
       </div>
