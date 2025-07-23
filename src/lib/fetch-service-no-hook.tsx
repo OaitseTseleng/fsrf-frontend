@@ -1,7 +1,7 @@
 // src/lib/fetch-service.ts
 const fetchData = async (query: string) => {
   try {
-    const response = await fetch("http://localhost:1337/graphql", {
+    const response = await fetch("http://13.218.95.118:1337/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

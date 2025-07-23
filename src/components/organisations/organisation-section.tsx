@@ -19,7 +19,7 @@ const ORGS_QUERY = gql`
   }
 `;
 
-const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://13.218.95.118:1337';
 
 interface Organization {
   name: string;

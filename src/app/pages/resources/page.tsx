@@ -5,7 +5,7 @@ import fetchStrapi from '@/lib/fetch-service-no-graphql';
 import Loader from '@/components/common/loader';
 
 const ITEMS_PER_PAGE = 5;
-const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
+const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL || "http://13.218.95.118:1337";
 
 /**
  * Fetches a file from Strapi and forces a download dialog.

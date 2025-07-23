@@ -33,7 +33,7 @@ Shared via the reporting portal.
   // Fetch and attach file if available
   if (resource.downloadAllFile) {
     try {
-      const response = await fetch("http://localhost:1337" + resource.downloadAllFile);
+      const response = await fetch("http://13.218.95.118:1337" + resource.downloadAllFile);
       if (!response.ok) throw new Error('Failed to fetch attachment');
 
       const buffer = await response.arrayBuffer();

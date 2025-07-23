@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Fetch subscribers from Strapi with token in Authorization header
-    const fetchRes = await fetch(`http://localhost:1337/api/subscriptions`, {
+    const fetchRes = await fetch(`http://13.218.95.118:1337/api/subscriptions`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

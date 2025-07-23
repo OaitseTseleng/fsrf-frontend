@@ -3,7 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 
 // 1. HTTP link to your proxy or direct endpoint
 const httpLink = new HttpLink({
-  uri: 'http://localhost:1337/graphql',
+  uri: 'http://13.218.95.118:1337/graphql',
 });
 
 // 2. Auth link to include your secret token (only on the server side)

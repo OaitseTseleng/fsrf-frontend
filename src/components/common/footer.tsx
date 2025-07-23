@@ -80,7 +80,7 @@ export default function Footer() {
     setSubError('');
 
     try {
-      const res = await fetch(`http://localhost:1337/api/subscriptions`, {
+      const res = await fetch(`http://13.218.95.118:1337/api/subscriptions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
