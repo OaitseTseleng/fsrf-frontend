@@ -29,6 +29,10 @@ export default function Footer() {
   const [orgs, setOrgs] = useState<OrgSocial[]>([]);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showWhistleModal, setShowWhistleModal] = useState(false);
+  const [showSubModal, setShowSubModal] = useState(false);
+  const [subEmail, setSubEmail] = useState('');
+  const [subError, setSubError] = useState('');
+  const [subLoading, setSubLoading] = useState(false);
   const [whistleName, setWhistleName] = useState("");
   const [whistleEmail, setWhistleEmail] = useState("");
   const [whistleMessage, setWhistleMessage] = useState("");
@@ -68,6 +72,58 @@ export default function Footer() {
   function openPrivacy() { setShowPrivacyModal(true); }
   function openWhistle() { setShowWhistleModal(true); }
   function closeModals() { setShowPrivacyModal(false); setShowWhistleModal(false); }
+
+  function openSubModal() { setSubEmail(''); setSubError(''); setShowSubModal(true); }
+
+  async function handleSubscribe() {
+    setSubLoading(true);
+    setSubError('');
+
+    try {
+      const res = await fetch(`http://localhost:1337/api/subscriptions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // replace STRAPI_API_TOKEN with your actual env var name
+          'Authorization': `Bearer bd42874359116c4be0f0343c99eb669dfdb36b529f287a94c60374fa5b2bb918f542740c44d4630b39025411baf6fc132e0d2466bd499bb25f21f08173c8a826caea64923bcd67a3fffe8aa4683e87e17a940845ca6700306b72d02c0def645a226d2c04a4485758a45fe564b6dc6f81ca7987a9d01341b2bd40c5b439ec4954`,
+        },
+        body: JSON.stringify({
+          data: {
+            email: subEmail,
+          }
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Subscription failed');
+
+      // on success, just close
+      setShowSubModal(false);
+    } catch (err: any) {
+      setSubError(err.message);
+    } finally {
+      setSubLoading(false);
+    }
+  }
+
+  async function handleUnsubscribe() {
+    setSubLoading(true)
+    setSubError('')
+    try {
+      const res = await fetch('/api/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: subEmail }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Unsubscribe failed')
+      setShowSubModal(false)
+    } catch(err: any) {
+      setSubError(err.message)
+    } finally {
+      setSubLoading(false)
+    }
+  }
 
   async function sendWhistle() {
     setIsSubmitting(true);
@@ -139,6 +195,11 @@ export default function Footer() {
             <li>
               <button onClick={openWhistle} className="hover:text-gray-300">
                 Whistleblowing
+              </button>
+            </li>
+            <li>
+              <button onClick={openSubModal} className="hover:text-gray-300">
+                Subscribe/Unsubscribe
               </button>
             </li>
           </ul>
@@ -351,6 +412,41 @@ export default function Footer() {
                 {isSubmitting ? 'Submitting...' : 'Submit Report'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription Modal */}
+      {showSubModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white max-w-sm w-full p-6 rounded-lg relative">
+            <button onClick={()=>setShowSubModal(false)} className="absolute top-2 right-2 text-xl" style={{color:NAVY}}>✕</button>
+            <h2 className="text-xl font-semibold mb-4" style={{color:NAVY}}>Subscribe / Unsubscribe</h2>
+            <input
+              type="email"
+              placeholder="Your email"
+              value={subEmail}
+              onChange={e=>setSubEmail(e.target.value)}
+              className="w-full border border-gray-300 px-4 py-2 rounded mb-2"
+            />
+            {subError && <p className="text-red-600 mb-2 text-sm">{subError}</p>}
+            <div className="flex justify-end gap-2">
+              <button onClick={()=>setShowSubModal(false)} className="px-4 py-2 rounded border">Cancel</button>
+              <button
+                onClick={handleSubscribe}
+                disabled={subLoading}
+                className="px-4 py-2 rounded bg-green-600 text-white disabled:opacity-50"
+              >
+                {subLoading? '...' : 'Subscribe'}
+              </button>
+              <button
+                onClick={handleUnsubscribe}
+                disabled={subLoading}
+                className="px-4 py-2 rounded bg-red-600 text-white disabled:opacity-50"
+              >
+                {subLoading? '...' : 'Unsubscribe'}
+              </button>
+            </div>
           </div>
         </div>
       )}

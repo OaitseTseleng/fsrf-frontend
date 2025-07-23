@@ -96,9 +96,6 @@ export default function Navbar() {
           <Link href="/pages/resources" className={linkClasses}>
             Resources
           </Link>
-          <Link href="/pages/faqs" className={linkClasses}>
-            FAQS
-          </Link>
         </div>
       </div>
     </nav>
