@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     // Replace this with your actual domain or IP
     allowedDevOrigins: ['http://13.218.95.118'],
   },
+  devIndicators: false
 };
 
 export default nextConfig;
