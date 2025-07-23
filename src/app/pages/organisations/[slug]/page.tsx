@@ -70,14 +70,14 @@ export default async function OrgDetailPage({ params }: Props) {
       </div>
 
       {/* Details */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <h2 className="text-2xl font-semibold text-white mb-3">Organization Details</h2>
         <ul className="list-disc list-inside text-white space-y-2">
           <li><span className="font-medium">ID:</span> {org.id}</li>
           <li><span className="font-medium">Document ID:</span> {org.documentId}</li>
           <li><span className="font-medium">Slug:</span> {org.slug}</li>
         </ul>
-      </div>
+      </div> */}
 
       {/* Contact */}
       <div>

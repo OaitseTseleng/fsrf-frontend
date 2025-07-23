@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import fetchStrapi from '@/lib/fetch-3'; // adjust if needed
 import nodemailer from 'nodemailer';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,9 +22,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     : 'Hello! Some updates have been made to our site content. Come check it out.';
 
   try {
-    // Fetch subscribers from Strapi
-    const strapiRes = await fetchStrapi(`http://localhost:1337/api/subscriptions`);
-    const subscribers = strapiRes?.data || [];
+    // Fetch subscribers from Strapi with token in Authorization header
+    const fetchRes = await fetch(`http://localhost:1337/api/subscriptions`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer bd42874359116c4be0f0343c99eb669dfdb36b529f287a94c60374fa5b2bb918f542740c44d4630b39025411baf6fc132e0d2466bd499bb25f21f08173c8a826caea64923bcd67a3fffe8aa4683e87e17a940845ca6700306b72d02c0def645a226d2c04a4485758a45fe564b6dc6f81ca7987a9d01341b2bd40c5b439ec4954`, 
+      },
+    });
+
+    const json = await fetchRes.json(); // parse the JSON body
+
+    const subscribers = json?.data || []; // Strapi wraps content in `data`
 
     if (subscribers.length === 0) {
       console.log('No subscribers found');
@@ -43,10 +51,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
     });
 
+    console.log('subscribers found', subscribers);
+
     // Send emails in parallel
     const sendList = subscribers.map((sub: any) =>
       transporter.sendMail({
-        from: `"FSRF" <${process.env.SMTP_USER}>`,
+        from: process.env.SMTP_USER,
         to: sub.email,
         subject,
         text: message,
@@ -55,9 +65,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await Promise.allSettled(sendList);
 
-    res.status(200).json({ status: 'Notifications sent', count: subscribers.length });
+    return res.status(200).json({ status: "Notifications sent", count: subscribers.length });
   } catch (err: any) {
     console.error('Notification error:', err);
-    res.status(500).json({ error: 'Failed to notify subscribers' });
+    return res.status(500).json({ error: 'Failed to notify subscribers' });
   }
 }
